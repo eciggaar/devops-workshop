@@ -1,0 +1,25 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: knative-jfall-service
+spec:
+  template:
+    metadata:
+      name: knative-jfall-service-v3
+      annotations:
+        # the minimum number of pods to scale down to
+        autoscaling.knative.dev/minScale: "1"
+        # the maximum number of pods to scale up to
+        autoscaling.knative.dev/maxScale: "5"
+        # Target in-flight-requests per pod.
+        autoscaling.knative.dev/target: "1"
+    spec:
+      containers:
+        - image: image-registry.openshift-image-registry.svc:5000/jfall-workshop/jfall-image:latest
+          env:
+            - name: TARGET
+              value: "Hello JFall 2020 v3 -- Scaling"
+  traffic:
+    - tag: v3
+      revisionName: knative-jfall-service-v3
+      percent: 100

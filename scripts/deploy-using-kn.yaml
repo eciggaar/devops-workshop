@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-using-kn
+  namespace: jfall-workshop
+spec:
+  params:
+    - name: kn-image
+      description: kn CLI container image to run this task
+      default: 'gcr.io/knative-releases/knative.dev/client/cmd/kn:latest'
+      type: string
+    - name: ARGS
+      description: kn CLI arguments to run
+      default:
+        - help
+      type: array
+  resources:
+    inputs:
+      - name: input-image
+        type: image
+  steps:
+  - name: kn
+    image: "$(params.kn-image)"
+    command: ["/ko-app/kn"]
+    args: ["$(params.ARGS)"]        

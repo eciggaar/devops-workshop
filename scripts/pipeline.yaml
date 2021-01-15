@@ -1,0 +1,52 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: jfall-pipeline
+  namespace: jfall-workshop
+spec:
+  resources:
+    - name: source-git
+      type: git
+    - name: output-image
+      type: image
+  tasks:
+    - name: compile-and-build
+      params:
+        - name: PATH_CONTEXT
+          value: code
+        - name: TLSVERIFY
+          value: 'false'
+        - name: MAVEN_CLEAR_REPO
+          value: 'false'
+      resources:
+        inputs:
+          - name: source
+            resource: source-git
+        outputs:
+          - name: image
+            resource: output-image
+      taskRef:
+        kind: Task
+        name: compile-and-build
+    - name: deploy-using-kn
+      params:
+        - name: kn-image
+          value: 'gcr.io/knative-releases/knative.dev/client/cmd/kn:latest'
+        - name: ARGS
+          value:
+            - service
+            - create
+            - knative-jfall-service
+            - --image=$(resources.inputs.input-image.url)
+            - --revision-name=knative-jfall-service-v1
+            - --env=TARGET=Hello JFall 2020 v1
+            - --force
+      resources:
+        inputs:
+          - name: input-image
+            resource: output-image
+      runAfter:
+        - compile-and-build
+      taskRef:
+        kind: Task
+        name: deploy-using-kn

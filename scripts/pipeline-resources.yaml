@@ -1,0 +1,25 @@
+apiVersion: v1
+items:
+- apiVersion: tekton.dev/v1alpha1
+  kind: PipelineResource
+  metadata:
+    name: git-repo
+    namespace: jfall-workshop
+  spec:
+    params:
+    - name: revision
+      value: master
+    - name: url
+      value: https://github.com/eciggaar/jfall2020-workshop.git
+    type: git
+- apiVersion: tekton.dev/v1alpha1
+  kind: PipelineResource
+  metadata:
+    name: image-source
+    namespace: jfall-workshop
+  spec:
+    params:
+    - name: url
+      value: image-registry.openshift-image-registry.svc:5000/jfall-workshop/jfall-image:latest
+    type: image
+kind: List

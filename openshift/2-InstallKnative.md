@@ -1,39 +1,73 @@
-# Installing OpenShift Serverless aka Knative
+# Installing Required OpenShift Operators 
 
-The OpenShift version of Knative is called [OpenShift Serverless](https://access.redhat.com/documentation/en-us/openshift_container_platform/4.3/html/serverless_applications/serverless-getting-started). It is installed and managed with an Operator.
+Two operators need to be installed to successfully complete this workshop, the OpenShift Serverless Operator and the OpenShift Pipelines operator. This can be done via the UI or via the command line. 
 
-1. Go back to the OpenShift Web Console.
 
-1. In the 'Adminstrator' view, select 'Operators -> OperatorHub' and search for 'serverless':
-   ![operatorhub](images/operatorhub.png)
+## Install using the CLI
+In this section, the steps for the command line are listed. 
 
-1. Click on 'OpenShift Serverless Operator', then click on the blue 'Install' button. In the 'Create Operator Subscription' dialog keep the defaults, and click 'Subscribe':
-   ![subscr](images/subscribe.png)
+1. For this, switch tab to your IBM Cloud Shell session and go the root of the cloned git repository from the previous step.
 
-1. The Console now displays the 'Installed Operators'. Change to the 'openshift-operators' project and wait until the status shows 'Succeeded / Up to date':
-   ![op status](images/op-status.png)  
+   ```bash 
+   $ cd ~/jfall2020-workshop/scripts
+   ```
 
-1. Next we create a namespace for Knative Serving. The Red Hat instructions specifically ask to create a namespace, not a project.
-   Go to 'Administrator: Administration -> Namespaces', click 'Create Namespace' and enter 'knative-serving' as name:
-   ![crt ns](images/crt-ns.png)
-   Click 'Create'.
+1. Next, run the following script:
 
-1. Go back to 'Installed Operators', make sure the 'knative-serving' project is selected, and click on 'Knative Serving' API:
+   ```bash
+   $ ./create-workshop-prereqs.sh
+   ```
+   
+   the output should end with something similar to:
+
+   ```
+   {
+   "lastTransitionTime": "2020-10-30T10:57:07Z",
+   "message": "Dependency installing: Kourier",
+   "reason": "Installing",
+   "status": "False",
+   "type": "Ready"
+   }
+
+   DependenciesInstalled=True
+   DeploymentsAvailable=True
+   InstallSucceeded=True
+   Ready=True
+
+   ==> Done!
+
+   ==> ****************************************************
+   ==> 
+   ==> Successfully installed JFall 2020 workshop pre-reqs
+   ==> 
+   ==> ****************************************************
+   ```
+
+This script creates a subscription to both the serverless and the pipelines operator, it creates the `knative-serving` namespace and it enables the Knative Serving API.
+
+1. When the script completed successfully, go the Web Console and check that both operators are present under 'Operators' -> Installed Operators'
+   
+   ![op status](images/ops-status.png) 
+
+1. To verify that the Knative Serving API was successfully enabled, change to the 'knative-serving' project. Make sure you're still at the 'Installed Operators' page and click on the 'Knative Serving' API.
+   
    ![crt kn srv](images/ins-kn-srv.png)
 
-1. Click the blue 'Create Knative Serving' button, check the YAML, and click 'Create':
-   ![crt kn srv2](images/ins-kn-srv2.png)  
+1. This opens the following page:
 
-1. In the 'Operator Details' view for the Serverless operator, you can now see the Knative Serving instance created. But it seems to stay in Status 'Unknown':
-   ![status1](images/status1.png)
+   ![kn serving](images/kn-serving.png)
 
-1. Click on the Name 'knative-serving', on in the 'Overview' scroll down to Conditions. You can see all 4 conditions are true, including 'Ready':
+1. Click on the Name 'knative-serving'. In the 'Overview' scroll down to Conditions. You can see all 4 conditions are true, including 'Ready':
+   
    ![status2](images/status2.png)
-   In the 'Resources' tab you will see many deployments, services, pods, all should be 'Created' or 'Running'.
+   
+   Note that the shell script reported exaclty the same status. In the 'Resources' tab you will see many deployments, services, pods, all should be 'Created' or 'Running'. 
 
-We will not look into Knative Eventing in this workshop.
+## [Optional] Install via the Web Console
+
+If preferred, the operators can be installed via the Web Console as well. Click [Install via UI](2-InstallKnativeUI.md) to get to the details of this.
 
 ---
 
-__Continue with the next part [Deploy a Knative Service](3-DeployKnativeService.md)__      
+__Continue with the next part [Create, change and deploy a Vert.x example app as Knative service](3-DeployKnativeService.md)__      
 

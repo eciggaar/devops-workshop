@@ -5,15 +5,16 @@ Scale to zero is an interesting feature but without additional tricks (like pre-
 On the other hand, if our application / microservice is hit hard with many requests, a single pod may not be sufficient to serve them and we may need to scale up. And preferably scale up and down automatically.
 
 Auto-scaling is accomplished by simply adding a few annotation statements to the Knative Service description, *service-v3-scaling.yaml*:
-```
+
+```yaml
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: helloworld
+  name: knative-jfall-service
 spec:
   template:
     metadata:
-      name: helloworld-v3
+      name: knative-jfall-service-v3
       annotations:
         # the minimum number of pods to scale down to
         autoscaling.knative.dev/minScale: "1"
@@ -23,11 +24,16 @@ spec:
         autoscaling.knative.dev/target: "1"
     spec:
       containers:
-        - image: docker.io/ibmcom/kn-helloworld
+        - image: image-registry.openshift-image-registry.svc:5000/jfall-workshop/jfall-image:latest
           env:
             - name: TARGET
-              value: "HelloWorld Sample v3 -- Scaling"
+              value: "Hello JFall 2020 v3 -- Scaling"
+  traffic:
+    - tag: v3
+      revisionName: knative-jfall-service-v3
+      percent: 100              
 ```
+
 * `minScale: "1"` prevents scale to zero, there will always be at least 1 pod active.
 * `maxScale: "5"` will allow to start a maximum of 5 pods.
 * `target: "1"` limits every started pod to 1 concurrent request at a time, this is just to make it easier to demo. 
@@ -37,25 +43,30 @@ You can also [scale based on CPU usage or number of requests](https://cloud.ibm.
 1. Deploy as usual (`oc apply ...`) and test if it works (`curl ...`).
 
 1. Download the `hey` load generator tool into your IBM Cloud Shell session and make it executable:
+
+   ```bash
+   $ wget https://storage.googleapis.com/hey-release/hey_linux_amd64
+   $ mv hey_linux_amd64 hey
+   $ chmod +x hey
    ```
-   wget https://storage.googleapis.com/hey-release/hey_linux_amd64
-   mv hey_linux_amd64 hey
-   chmod +x hey
-   ```
+
 1. In the OpenShift Web Console, Topology view, notice that 1 pod is started. This 1 pod will not scale to zero (`minScale: "1"`).
 
 1. In the OpenShift Web Console copy the URL/link location of the Route.
    
 1. In the IBM Cloud Shell session generate some load on this copied URL:
    (Don't forget the './' !)
+
+   ```bash
+   $ ./hey -z 30s -c 50 http://hellojfall-....appdomain.cloud   
    ```
-   ./hey -z 30s -c 50 http://helloworld-....appdomain.cloud   
-   ```
+
 1. Switch over to OpenShift Web Console and watch the pod count go up to 5:
-   ![5 pods](images/scaleto5pods.png)
-  
+
+   ![5 pods](images/scaleto5pods.png)  
 
 1. Check the output of the `hey`command, for example the histogram:
+  
    ```
     Response time histogram:
     0.009 [1]     |
@@ -70,6 +81,7 @@ You can also [scale based on CPU usage or number of requests](https://cloud.ibm.
     0.244 [7]     |
     0.270 [33]    |
    ```
+  
    None of the requests took much longer than a quarter of a second. Thats because one pod is always started and can take the initial brunt of the requests.
   
 **This concludes the main part of the Knative workshop.**   
@@ -83,4 +95,4 @@ etc.
   
 ---
 
-__Continue with the last part [Knative Debugging Tips](../iks/7-Debugging.md)__
+__Continue with the last part [Create a reactive Java application using Quarkus](9-ReactiveQuarkus.md)__
