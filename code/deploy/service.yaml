@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: helloworld
+spec:
+  template:
+    metadata:
+      name: helloworld-v1
+    spec:
+      containers:
+        - image: docker.io/ibmcom/kn-helloworld
+          env:
+            - name: TARGET
+              value: "HelloWorld Sample v1"
+

@@ -1,0 +1,13 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: helloworld-vertx
+  namespace: default
+spec:
+  template:
+    spec:
+       containers:
+         - image: docker.io/mgrygles/sf-sept2020
+             -name: TARGET
+              value: "Eclipse Vert.x helloworld San Francisco"
+
