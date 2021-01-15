@@ -1,3 +1,10 @@
-*.backup
-node_modules
-*.odp
+# Compiled class file
+*.class
+
+**.idea
+**.classpath
+**/.settings
+**.project
+**/target
+**.DS_Store
+
