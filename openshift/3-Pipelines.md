@@ -14,8 +14,8 @@ All these resources are grouped together in what is called an OpenShift pipeline
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: jfall-pipeline
-  namespace: jfall-workshop
+  name: workshop-pipeline
+  namespace: devops-workshop
 spec:
   resources:
     - name: source-git
@@ -52,7 +52,7 @@ spec:
             - knative-jfall-service
             - --image=$(resources.inputs.input-image.url)
             - --revision-name=knative-jfall-service-v1
-            - --env=TARGET=Hello JFall 2020 v1
+            - --env=MSG=Hello DevOps Workshop v1
             - --force
       resources:
         inputs:
@@ -67,15 +67,15 @@ spec:
 
 This YAML describes the pipeline that is used in this workshop. Note how it is built up, referencing the tasks that are used, the pipelines resources, etc.
 
-1. To create this pipeline in your own environent, switch tab to your IBM Cloud Shell. Then, change directory to `jfall2020-workshop/scripts`.
+1. To create this pipeline in your own environent, switch tab to your IBM Cloud Shell. Then, change directory to `devops-workshop/scripts`.
 
     ```bash
-    $ cd ~/jfall2020-workshop/scripts
+    $ cd ~/devops-workshop/scripts
     ```
-    Make sure the `jfall-workshop` project is your active project:
+    Make sure the `devops-workshop` project is your active project:
     
     ```bash
-    $ oc project jfall-workshop
+    $ oc project devops-workshop
     ```
     
     and run the following script:
@@ -84,12 +84,12 @@ This YAML describes the pipeline that is used in this workshop. Note how it is b
     $ ./create-pipeline.sh
     ```
 
-  This script creates the pipeline resources, tasks and the pipeline itself -- all in the `jfall-workshop` project. The output should be similar to:
+  This script creates the pipeline resources, tasks and the pipeline itself -- all in the `devops-workshop` project. The output should be similar to:
 
 ```
 ==> **************************************************
 ==> 
-==> Create JFall 2020 workshop pipeline
+==> Create DevOps workshop pipeline
 ==> 
 ==> **************************************************
 
@@ -104,17 +104,17 @@ task.tekton.dev/deploy-using-kn created
 ==> Done!
 
 ==> Creating Tekton Pipeline 
-pipeline.tekton.dev/jfall-pipeline created
+pipeline.tekton.dev/workshop-pipeline created
 ==> Done!
 
 ==> ****************************************************
 ==> 
-==> Successfully created JFall 2020 workshop pipeline
+==> Successfully created DevOps workshop pipeline
 ==> 
 ==> ****************************************************
 ```
 
-To verify that everything is in place, check the Pipelines section in the OpenShift Web Console. It should list the Jfall pipeline, resources and  tasks created by the script.
+To verify that everything is in place, check the Pipelines section in the OpenShift Web Console. It should list the workshop pipeline, resources and  tasks created by the script.
 
 ![pipelines](images/pipelines.png) 
 
@@ -143,25 +143,25 @@ Having successfully created all pipeline resources, we can now run the pipeline.
 1. For this, enter:
 
     ```bash
-    $ tkn pipeline start jfall-pipeline
+    $ tkn pipeline start workshop-pipeline
     ```
 
     Accept the defaults for the git repo and the image source. The result should be similar to:
 
     ```bash
-    $ tkn pipeline start jfall-pipeline
-    ? Choose the git resource to use for source-git: git-repo (https://github.com/eciggaar/jfall2020-workshop.git)
-    ? Choose the image resource to use for output-image: image-source (image-registry.openshift-image-registry.svc:5000/jfall-workshop/jfall-image:latest)
-    PipelineRun started: jfall-pipeline-run-xs8fd
+    $ tkn pipeline start workshop-pipeline
+    ? Choose the git resource to use for source-git: git-repo (https://github.com/eciggaar/devops-workshop.git)
+    ? Choose the image resource to use for output-image: image-source (image-registry.openshift-image-registry.svc:5000/devops-workshop/jfall-image:latest)
+    PipelineRun started: workshop-pipeline-run-xs8fd
 
     In order to track the PipelineRun progress run:
-    tkn pipelinerun logs jfall-pipeline-run-xs8fd -f -n jfall-workshop
+    tkn pipelinerun logs workshop-pipeline-run-xs8fd -f -n devops-workshop
     ```
 
 1. As mentioned by the output, you can monitor the progress of the pipeline run as follows:
 
     ```bash
-    $ tkn pipelinerun logs jfall-pipeline-run-xs8fd -f -n jfall-workshop
+    $ tkn pipelinerun logs workshop-pipeline-run-xs8fd -f -n devops-workshop
     ```
 
     Note that your pipeline run name is different from the one shown above. Also, it may take a little bit before logs are being shown here...
@@ -182,7 +182,7 @@ Having successfully created all pipeline resources, we can now run the pipeline.
 
 At this point we deployed our Vert.x java application to Openshift using a pipeline. Let's have a look at the application. For this,
 
-1. Switch tab to the OpenShift Web Console, open the 'Developer' view and select 'Topology'. Make sure the 'jfall-workshop' project is selected.
+1. Switch tab to the OpenShift Web Console, open the 'Developer' view and select 'Topology'. Make sure the 'devops-workshop' project is selected.
 
     ![vertx knative service](images/vertx-kn-service.png) 
 
@@ -196,32 +196,32 @@ A Knative Revision is a specific version of a code deployment.
 
 If you deploy a new version of an app in Kubernetes, you typically change the deployment.yaml file and apply the changed version using `kubectl`. Kubernetes will then perform a rolling update from the old to the new version.
 
-Let's do a new deployment of our hello world Vert.x app. Just to make life easy, we only gonna change the value of the `TARGET` environment variable that is used as parameter in the `deploy-using-kn` task. For this,
+Let's do a new deployment of our hello world Vert.x app. Just to make life easy, we only gonna change the value of the `MSG` environment variable that is used as parameter in the `deploy-using-kn` task. For this,
 
-1. Switch tab to the IBM Cloud Shell. Make sure `jfall-workshop` is your current project. Then edit the pipeline by running:
+1. Switch tab to the IBM Cloud Shell. Make sure `devops-workshop` is your current project. Then edit the pipeline by running:
 
     ```bash
-    $ oc edit pipeline jfall-pipeline
+    $ oc edit pipeline workshop-pipeline
     ```
 
     The pipeline opens in editing mode with vi as editor. 
 
-1. Now, search for the string `env=TARGET` by typing `/` followed by:
+1. Now, search for the string `env=MSG` by typing `/` followed by:
 
     ```
-    env=TARGET
+    env=MSG
     ```
 
     Type `n` once to go the next search result. You should now be at the following line:
 
     ```
-    - --env=TARGET=Hello JFall 2020 v1
+    - --env=MSG=Hello DevOps Workshop v1
     ```
 
-1. Next, type `<SHIFT> + a` (so captical A). You should now be in editing mode and at the end of the line. Make a change to the value of `TARGET`, e.g.
+1. Next, type `<SHIFT> + a` (so captical A). You should now be in editing mode and at the end of the line. Make a change to the value of `MSG`, e.g.
 
     ```
-    - --env=TARGET=Hello JFall 2020 v2 UPDATE!!!
+    - --env=MSG=Hello DevOps Workshop v2 UPDATE!!!
     ```
 
 1. A couple of lines above change the `revision-name` to:
@@ -233,13 +233,13 @@ Let's do a new deployment of our hello world Vert.x app. Just to make life easy,
 1. Finally, save your changes by pressing `<Esc>`, followed by type `:wq`. You should see the following output:
 
     ```
-    pipeline.tekton.dev/jfall-pipeline edited
+    pipeline.tekton.dev/workshop-pipeline edited
     ```
 
 1. Use the Tekton CLI to run the pipeline again:
 
     ```bash
-    $ tkn pipeline start jfall-pipeline
+    $ tkn pipeline start workshop-pipeline
     ```
 
     Accept the defaults again and check the logs or monitor the deployment via the Web Console. Wait for it to successfully complete.
@@ -254,13 +254,13 @@ Let's do a new deployment of our hello world Vert.x app. Just to make life easy,
 
     ```
     Name:       knative-jfall-service
-    Namespace:  jfall-workshop
+    Namespace:  devops-workshop
     Age:        25m
-    URL:        http://knative-jfall-service-jfall-workshop.osjfall-001-0e3e0ef4c9c6d831e8aa6fe01f33bfc4-0000.eu-de.containers.appdomain.cloud
+    URL:        http://knative-jfall-service-devops-workshop.osjfall-001-0e3e0ef4c9c6d831e8aa6fe01f33bfc4-0000.eu-de.containers.appdomain.cloud
 
     Revisions:  
       100%  @latest (knative-jfall-service-v2) [2] (49s)
-            Image:  image-registry.openshift-image-registry.svc:5000/jfall-workshop/jfall-image:latest (pinned to a07469)
+            Image:  image-registry.openshift-image-registry.svc:5000/devops-workshop/jfall-image:latest (pinned to a07469)
 
     Conditions:  
       OK TYPE                   AGE REASON
@@ -277,7 +277,7 @@ Let's do a new deployment of our hello world Vert.x app. Just to make life easy,
 
     It hasn't changed a lot, but notice the two revisions in the 'Resources' where revision `knative-jfall-service-v2` has 100%. Its the same 100% we could see in the previous step using the Knative CLI.
 
-1. Click on the Route, this will display the output of the latest revision ("Hello: Hello JFall 2020 v2 UPDATE!!!")
+1. Click on the Route, this will display the output of the latest revision ("Hello: Hello DevOps Workshop v2 UPDATE!!!")
 
     Back in the Web Console, a pod will be started for Revision `knative-jfall-service-v2`. It will scale to zero after a moment. 
 

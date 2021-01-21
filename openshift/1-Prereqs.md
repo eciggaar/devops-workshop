@@ -22,7 +22,7 @@ In this step you will assign yourself a pre-provisioned cluster.
 
    Sign up for the Free Openshift Lab cluster here: 
    
-   URL: **https://osjfall.mybluemix.net/**  
+   URL: **https://osdevops.mybluemix.net/**  
    **key: oslab**
 
    ![granttool1](images/granttool1.png)
@@ -95,11 +95,11 @@ We will work with OpenShift in the Web Console and in the command line, using di
 
 ## 4. Get the code
 
-In your Cloud Shell enter the following command to download the code from Github:
+In your Cloud Shell, enter the following command to download the code from Github:
 
 ```bash
-$ git clone https://github.com/eciggaar/jfall2020-workshop
-$ cd jfall2020-workshop
+$ git clone https://github.com/eciggaar/devops-workshop
+$ cd devops-workshop
 ```
 
 ---
