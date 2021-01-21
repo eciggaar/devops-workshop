@@ -9,7 +9,7 @@ In this section, the steps for the command line are listed.
 1. For this, switch tab to your IBM Cloud Shell session and go the root of the cloned git repository from the previous step.
 
    ```bash 
-   $ cd ~/jfall2020-workshop/scripts
+   $ cd ~/devops-workshop/scripts
    ```
 
 1. Next, run the following script:
@@ -38,12 +38,12 @@ In this section, the steps for the command line are listed.
 
    ==> ****************************************************
    ==> 
-   ==> Successfully installed JFall 2020 workshop pre-reqs
+   ==> Successfully installed DevOps Workshop pre-reqs
    ==> 
    ==> ****************************************************
    ```
 
-This script creates a subscription to both the serverless and the pipelines operator, it creates the `knative-serving` namespace and it enables the Knative Serving API.
+This script creates a subscription to both the serverless and the pipelines operator, it creates the `knative-serving` namespace and it installs the Knative Serving pane.
 
 1. When the script completed successfully, go the Web Console and check that both operators are present under 'Operators' -> Installed Operators'
    
@@ -63,11 +63,6 @@ This script creates a subscription to both the serverless and the pipelines oper
    
    Note that the shell script reported exaclty the same status. In the 'Resources' tab you will see many deployments, services, pods, all should be 'Created' or 'Running'. 
 
-## [Optional] Install via the Web Console
-
-If preferred, the operators can be installed via the Web Console as well. Click [Install via UI](2-InstallKnativeUI.md) to get to the details of this.
-
 ---
 
-__Continue with the next part [Create, change and deploy a Vert.x example app as Knative service](3-DeployKnativeService.md)__      
-
+__Continue with the next part [Create an OpenShift Pipeline and deploy your Quarkus app with it](3-Pipelines.md)__    

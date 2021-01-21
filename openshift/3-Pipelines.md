@@ -283,5 +283,5 @@ Let's do a new deployment of our hello world Vert.x app. Just to make life easy,
 
 ---
 
-__Continue with the next part [Knative Traffic Management](5-TrafficManagement.md)__
+__Continue with the next part [Knative Traffic Management](4-TrafficManagement.md)__
 

@@ -25,7 +25,7 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
     Type `n` once to go the next search result. You should now be at the following line:
 
     ```
-    - --env=TARGET=Hello JFall 2020 v2 UPDATE!!!
+    - --env=MSG=Hello JFall 2020 v2 UPDATE!!!
     ```
 
 1. Switch to editing mode and add the following lines
@@ -83,4 +83,4 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
    
 ---
 
-__Continue with the next part [Knative Auto-Scaling](6-Scaling.md)__
+__Continue with the next part [Knative Auto-Scaling](5-Scaling.md)__
