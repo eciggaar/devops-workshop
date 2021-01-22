@@ -2,7 +2,7 @@
 echo
 echo "==> **************************************************"
 echo "==> "
-echo "==> Deleting JFall 2020 workshop pre-requisites"
+echo "==> Deleting DevOps workshop pre-requisites"
 echo "==> "
 echo "==> **************************************************"
 echo
@@ -10,10 +10,10 @@ echo
 # Delete the OpenShift pipelines operator subscription
 echo "==>  Deleting openshift pipelines operator subscription..."
 echo "  get current cluster service version of pipelines operator:"
-CURRENTCSV=`oc get subscription openshift-pipelines-operator-rh -n openshift-operators -o json |jq -r '.status."currentCSV"'`
+CURRENTCSV=`oc get subscription openshift-pipelines-operator -n openshift-operators -o json |jq -r '.status."currentCSV"'`
 
 echo "  delete the operator subscription..."
-oc delete subscription openshift-pipelines-operator-rh -n openshift-operators
+oc delete subscription openshift-pipelines-operator -n openshift-operators
 
 echo "  delete the cluster service version of the operator"
 oc delete clusterserviceversion $CURRENTCSV -n openshift-operators
@@ -42,7 +42,7 @@ oc get crd -oname | grep 'knative.dev' | xargs oc delete
 echo
 echo "==> ****************************************************"
 echo "==> "
-echo "==> Successfully deleted JFall 2020 workshop pre-reqs"
+echo "==> Successfully deleted DevOps workshop pre-reqs"
 echo "==> "
 echo "==> ****************************************************"
 

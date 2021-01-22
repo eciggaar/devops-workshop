@@ -1,0 +1,115 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: workshop-pipeline
+  namespace: devops-workshop
+spec:
+  description: |
+    This pipeline will clone a given repository revision, build a Quarkus application,
+    pushing the final image into the Openshift internal registry and finally, deploy 
+    the 
+  params:
+  - name: source-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: https://github.com/eciggaar/devops-workshop-code.git
+  - name: source-revision
+    type: string
+    description: The git revision to clone.
+    default: 19e3c62ae20b65ab977a1000a1bdec002e753120
+  - name: short-source-revision
+    type: string
+    description: Short commit id
+    default: 19e3c62
+  - name: image-registry
+    type: string
+    description: Image registry
+    default: image-registry.openshift-image-registry.svc.cluster.local:5000
+  - name: image-repository
+    type: string
+    description: Image repository within image-registry the image will be pushed to
+    default: devops-workshop
+  - name: dockerfile
+    type: string
+    description: Dockerfile location used to build the final image
+    default: ./src/main/docker/Dockerfile.jvm
+  workspaces:
+  - name: source
+  - name: maven-settings
+  tasks:
+  - name: fetch-source-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: source
+    params:
+    - name: url
+      value: $(params.source-repo-url)
+    - name: revision
+      value: $(params.source-revision)
+    - name: subdirectory
+      value: $(params.source-revision)
+    - name: deleteExisting
+      value: "true"
+  - name: maven-build-and-test
+    taskRef:
+      name: maven
+      kind: ClusterTask
+    runAfter:
+      - fetch-source-repository
+    workspaces:
+      - name: source
+        workspace: source
+      - name: maven-settings
+        workspace: maven-settings
+    params:
+      - name: GOALS
+        value: ["-f", "$(params.source-revision)/pom.xml", "clean", "package"] 
+  - name: image-build-and-push
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    params:
+      - name: TLSVERIFY
+        value: "false"
+      - name: IMAGE
+        value: $(params.image-registry)/$(params.image-repository)/quarkus-hello-world:$(params.source-revision)
+      - name: CONTEXT
+        value: $(workspaces.source.path)/$(params.source-revision)
+      - name: DOCKERFILE
+        value: $(params.dockerfile)
+    workspaces: 
+      - name: source 
+        workspace: source 
+    runAfter:
+      - maven-build-and-test
+  - name: deploy-using-kn
+    taskRef:
+      name: kn
+      kind: ClusterTask
+    params:
+      - name: kn-image
+        value: 'gcr.io/knative-releases/knative.dev/client/cmd/kn:latest'
+      - name: ARGS
+        value:
+          - service
+          - create
+          - quarkus-hello-world
+          - --image=$(params.image-registry)/$(params.image-repository)/quarkus-hello-world:$(params.source-revision)
+          - --revision-name=$(params.short-source-revision)
+          - --env=GREETING_MESSAGE=Hello DevOps Workshop v1
+          - --force      
+    runAfter:
+      - image-build-and-push      
+  finally:  
+    - name: cleanup-source-workspace
+      taskRef:
+        name: workspace-cleaner
+      workspaces:
+        - name: root-workspace
+          workspace: source
+      params:
+        - name: directory
+          value: $(params.source-revision)
