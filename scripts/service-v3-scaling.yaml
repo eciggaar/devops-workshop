@@ -15,7 +15,7 @@ spec:
         autoscaling.knative.dev/target: "1"
     spec:
       containers:
-        - image: image-registry.openshift-image-registry.svc:5000/devops-workshop/quarkus-hello-world:latest
+        - image: image-registry.openshift-image-registry.svc.cluster.local:5000/devops-workshop/quarkus-hello-world:19e3c62ae20b65ab977a1000a1bdec002e753120
           env:
             - name: GREETING_MESSAGE
               value: "Hello DevOps Workshop v3 -- Scaling"
