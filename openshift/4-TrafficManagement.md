@@ -1,6 +1,6 @@
 # Knative Traffic Management
 
-In the previous section you have replaced revision v1 of the `knative-jfall-service` app with revision v2.
+In the previous section you have replaced revision v1 of the `quarkus-hello-world` app with revision v2.
 
 What if you want to do a canary release and test the new revision/version on a subset of your users?  
 
@@ -8,32 +8,32 @@ This is something you can easily do with Istio. It requires additional VirtualSe
 
 Using pipelines and Knative it is also rather simple to accomplish this. A good approach would be to create a dedicated Pipeline Run for this. However in this lab wel will edit the pipeline directly and implicitly create a new pipeline run when starting the pipeline.
 
-1. For this, switch tab to the IBM Cloud Shell and ensure that the `jfall-workshop` project is your current project. Then edit the pipeline by running:
+1. For this, switch tab to the IBM Cloud Shell and ensure that the `devops-workshop` project is your current project. Then edit the pipeline by running:
     
     ```bash
-    $ oc edit pipeline jfall-pipeline
+    $ oc edit pipeline workshop-pipeline
     ```
     
     The pipeline opens in editing mode with vi as editor. 
 
-1. Now, search for the string `env=TARGET` by typing `/` followed by:
+1. Now, search for the string `env=GREETING_MESSAGE` by typing `/` followed by:
 
     ```
-    env=TARGET
+    env=GREETING_MESSAGE
     ```
 
     Type `n` once to go the next search result. You should now be at the following line:
 
     ```
-    - --env=MSG=Hello JFall 2020 v2 UPDATE!!!
+    - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!
     ```
 
 1. Switch to editing mode and add the following lines
 
     ```
-    - --env=TARGET=Hello JFall 2020 v2 UPDATE!!!
-    - --tag=knative-jfall-service-v1=v1
-    - --tag=knative-jfall-service-v2=v2
+    - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!
+    - --tag=quarkus-hello-world-v1=v1
+    - --tag=quarkus-hello-world-v2=v2
     - --traffic=v1=75
     - --traffic=v2=25
     ```
@@ -45,14 +45,14 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
       value:
         - service
         - update
-        - knative-jfall-service
-        - --image=$(resources.inputs.input-image.url)
-        - --revision-name=knative-jfall-service-v2
-        - --env=TARGET=Hello JFall 2020 v2 UPDATE!!!
-        - --tag=knative-jfall-service-v1=v1
-        - --tag=knative-jfall-service-v2=v2
+        - quarkus-hello-world
+        - --image=$(params.image-registry)/$(params.image-repository)/quarkus-hello-world:$(params.source-revision)
+        - --revision-name=quarkus-hello-world-v2
+        - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!
+        - --tag=quarkus-hello-world-v1=v1
+        - --tag=quarkus-hello-world-v2=v2
         - --traffic=v1=75
-        - --traffic=v2=25
+        - --traffic=v2=25        
     ```
 
     Those additional 4 lines of code -- with the `tag` and `traffic` entries -- will create a 75% / 25% distribution between revisions `-v1` and `-v2`.
@@ -60,13 +60,13 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
 1. Finally, save your changes by pressing `<Esc>`, followed by type `:wq`. You should see the following output:
 
     ```
-    pipeline.tekton.dev/jfall-pipeline edited
+    pipeline.tekton.dev/workshop-pipeline edited
     ```
 
 1. Use the Tekton CLI to run the pipeline again:
 
     ```bash
-    $ tkn pipeline start jfall-pipeline
+    $ tkn pipeline start workshop-pipeline -w name=source,claimName=source-pvc -w name=maven-settings,config=maven-settings
     ```
 
     Accept the defaults again and check the logs or monitor the deployment via the Web Console. Wait for it to successfully complete.

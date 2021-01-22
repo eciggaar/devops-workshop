@@ -13,17 +13,15 @@ oc project devops-workshop
 echo "==> Done!"
 
 # Install the necessary pipline resources
-echo "==> Creating a Tekton workspace to share resources between the different pipeline tasks"
+echo
+echo "==> Creating a persistant volume claim and fetch git repo and a Maven config map for the settings.xml"
 oc apply -f tekton/workspaces/source-pvc/pvc.yaml
 RESPONSE=$?
 
 if [ $RESPONSE -ne 0 ]; then
   exit 1
-else
-  echo "==> Done!"
 fi
 
-echo "==> Creating a Maven ConfigMap with settings.xml"
 oc create cm maven-settings --from-file=tekton/workspaces/maven-settings/settings.xml
 RESPONSE=$?
 

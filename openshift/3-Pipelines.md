@@ -1,4 +1,4 @@
-# Create an OpenShift pipeline and deploy your Vert.x app with it
+# Create an OpenShift pipeline and deploy your Quarkus app with it
 
 ## Creating the pipeline
 
@@ -17,74 +17,127 @@ metadata:
   name: workshop-pipeline
   namespace: devops-workshop
 spec:
-  resources:
-    - name: source-git
-      type: git
-    - name: output-image
-      type: image
+  description: |
+    This pipeline will clone a given repository revision, build a Quarkus application,
+    pushing the final image into the Openshift internal registry and finally, deploy 
+    the application as a Knative service on the OpenShift cluster
+  params:
+  - name: source-repo-url
+    type: string
+    description: The git repository URL to clone from.
+    default: https://github.com/eciggaar/devops-workshop-code.git
+  - name: source-revision
+    type: string
+    description: The git revision to clone.
+    default: 19e3c62ae20b65ab977a1000a1bdec002e753120
+  - name: image-registry
+    type: string
+    description: Image registry
+    default: image-registry.openshift-image-registry.svc.cluster.local:5000
+  - name: image-repository
+    type: string
+    description: Image repository within image-registry the image will be pushed to
+    default: devops-workshop
+  - name: dockerfile
+    type: string
+    description: Dockerfile location used to build the final image
+    default: ./src/main/docker/Dockerfile.jvm
+  workspaces:
+  - name: source
+  - name: maven-settings
   tasks:
-    - name: compile-and-build
-      params:
-        - name: PATH_CONTEXT
-          value: code
-        - name: TLSVERIFY
-          value: 'false'
-        - name: MAVEN_CLEAR_REPO
-          value: 'false'
-      resources:
-        inputs:
-          - name: source
-            resource: source-git
-        outputs:
-          - name: image
-            resource: output-image
+  - name: fetch-source-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: source
+    params:
+    - name: url
+      value: $(params.source-repo-url)
+    - name: revision
+      value: $(params.source-revision)
+    - name: subdirectory
+      value: $(params.source-revision)
+    - name: deleteExisting
+      value: "true"
+  - name: maven-build-and-test
+    taskRef:
+      name: maven
+      kind: ClusterTask
+    runAfter:
+      - fetch-source-repository
+    workspaces:
+      - name: source
+        workspace: source
+      - name: maven-settings
+        workspace: maven-settings
+    params:
+      - name: GOALS
+        value: ["-f", "$(params.source-revision)/pom.xml", "clean", "package"] 
+  - name: image-build-and-push
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    params:
+      - name: TLSVERIFY
+        value: "false"
+      - name: IMAGE
+        value: $(params.image-registry)/$(params.image-repository)/quarkus-hello-world:$(params.source-revision)
+      - name: CONTEXT
+        value: $(workspaces.source.path)/$(params.source-revision)
+      - name: DOCKERFILE
+        value: $(params.dockerfile)
+    workspaces: 
+      - name: source 
+        workspace: source 
+    runAfter:
+      - maven-build-and-test
+  - name: deploy-using-kn
+    taskRef:
+      name: kn
+      kind: ClusterTask
+    params:
+      - name: kn-image
+        value: 'gcr.io/knative-releases/knative.dev/client/cmd/kn:latest'
+      - name: ARGS
+        value:
+          - service
+          - create
+          - quarkus-hello-world
+          - --image=$(params.image-registry)/$(params.image-repository)/quarkus-hello-world:$(params.source-revision)
+          - --revision-name=quarkus-hello-world-v1
+          - --env=GREETING_MESSAGE=Hello DevOps Workshop v1
+          - --force      
+    runAfter:
+      - image-build-and-push      
+  finally:  
+    - name: cleanup-source-workspace
       taskRef:
-        kind: Task
-        name: compile-and-build
-    - name: deploy-using-kn
+        name: workspace-cleaner
+      workspaces:
+        - name: root-workspace
+          workspace: source
       params:
-        - name: kn-image
-          value: 'gcr.io/knative-releases/knative.dev/client/cmd/kn:latest'
-        - name: ARGS
-          value:
-            - service
-            - create
-            - knative-jfall-service
-            - --image=$(resources.inputs.input-image.url)
-            - --revision-name=knative-jfall-service-v1
-            - --env=MSG=Hello DevOps Workshop v1
-            - --force
-      resources:
-        inputs:
-          - name: input-image
-            resource: output-image
-      runAfter:
-        - compile-and-build
-      taskRef:
-        kind: Task
-        name: deploy-using-kn
+        - name: directory
+          value: $(params.source-revision)
 ```
 
-This YAML describes the pipeline that is used in this workshop. Note how it is built up, referencing the tasks that are used, the pipelines resources, etc.
+This YAML describes the pipeline that is used in this workshop. Note how it is built up, referencing the tasks that are used, the pipelines parameters, workspaces, etc.
 
 1. To create this pipeline in your own environent, switch tab to your IBM Cloud Shell. Then, change directory to `devops-workshop/scripts`.
 
     ```bash
     $ cd ~/devops-workshop/scripts
     ```
-    Make sure the `devops-workshop` project is your active project:
-    
-    ```bash
-    $ oc project devops-workshop
-    ```
-    
     and run the following script:
 
     ```bash
-    $ ./create-pipeline.sh
+    $ ./create-pipeline-resources.sh
     ```
 
-  This script creates the pipeline resources, tasks and the pipeline itself -- all in the `devops-workshop` project. The output should be similar to:
+  This script creates the custom tasks, workspaces and the pipeline itself -- all in the `devops-workshop` project. The output should be similar to:
 
 ```
 ==> **************************************************
@@ -93,17 +146,20 @@ This YAML describes the pipeline that is used in this workshop. Note how it is b
 ==> 
 ==> **************************************************
 
-==> Creating Pipeline Resources for Git repo and target Docker image
-pipelineresource.tekton.dev/git-repo created
-pipelineresource.tekton.dev/image-source created
+==> Switching to project for this workshop
+Already on project "devops-workshop" on server "<your-server>".
 ==> Done!
 
-==> Creating Pipeline Tasks
-task.tekton.dev/compile-and-build created
-task.tekton.dev/deploy-using-kn created
+==> Creating a persistant volume claim and fetch git repo and a Maven config map for the settings.xml
+persistentvolumeclaim/source-pvc created
+configmap/maven-settings created
 ==> Done!
 
-==> Creating Tekton Pipeline 
+==> Adding a custom Tekton task to clean up the workspace as last step of the pipeline
+task.tekton.dev/workspace-cleaner created
+==> Done!
+
+==> Creating workshop OpenShift Pipeline
 pipeline.tekton.dev/workshop-pipeline created
 ==> Done!
 
@@ -114,27 +170,32 @@ pipeline.tekton.dev/workshop-pipeline created
 ==> ****************************************************
 ```
 
-To verify that everything is in place, check the Pipelines section in the OpenShift Web Console. It should list the workshop pipeline, resources and  tasks created by the script.
+To verify that everything is in place, check the Pipelines section in the OpenShift Web Console. It should list the workshop pipeline and custom task created by the script.
 
 ![pipelines](images/pipelines.png) 
 
-You can also check the presence of the resources using the command line. For this,
+You can also check the presence of your tasks using the command line. For this,
 
-2. In your IBM Cloud shell use the Tekton CLI to get a list of your pipelines resources:
+2. In your IBM Cloud shell use the Tekton CLI to get a list of your custom tasks:
   
-    ```bash
-    $ tkn resource list
-    ```
-    Similar, for the tasks:
-
     ```bash
     $ tkn task list
     ```
-    and finally, for the pipeline itself, execute the following command:
-    
+    Similar, for the pipeline itself:
+
     ```bash
     $ tkn pipeline list
     ```
+
+3. The OpenShift CLI can be used to check the persistant volume claim and configmap that has been created by the script. To see the persistant volume claims, execute the following command in Cloud Shell:
+
+    ```bash
+    $ oc get pvc
+    ```
+    and to check the ConfigMap, enter:
+
+    ```bash
+    $ oc get cm
 
 ## Running the pipeline
 
@@ -143,25 +204,29 @@ Having successfully created all pipeline resources, we can now run the pipeline.
 1. For this, enter:
 
     ```bash
-    $ tkn pipeline start workshop-pipeline
+    $ tkn pipeline start workshop-pipeline -w name=source,claimName=source-pvc -w name=maven-settings,config=maven-settings
     ```
 
-    Accept the defaults for the git repo and the image source. The result should be similar to:
+    Accept the defaults for all parameters. The `-w` option in the above command are used to configure the workspaces used by the pipeline. The result of the pipeline start should be similar to:
 
     ```bash
-    $ tkn pipeline start workshop-pipeline
-    ? Choose the git resource to use for source-git: git-repo (https://github.com/eciggaar/devops-workshop.git)
-    ? Choose the image resource to use for output-image: image-source (image-registry.openshift-image-registry.svc:5000/devops-workshop/jfall-image:latest)
-    PipelineRun started: workshop-pipeline-run-xs8fd
+    $ tkn pipeline start workshop-pipeline -w name=source,claimName=source-pvc -w name=maven-settings,config=maven-settings
+    ? Value for param `source-repo-url` of type `string`? (Default is `https://github.com/eciggaar/devops-workshop-code.git`) https://github.com/eciggaar/devops-workshop-code.git
+    ? Value for param `source-revision` of type `string`? (Default is `19e3c62ae20b65ab977a1000a1bdec002e753120`) 19e3c62ae20b65ab977a1000a1bdec002e753120
+    ? Value for param `short-source-revision` of type `string`? (Default is `19e3c62`) 19e3c62
+    ? Value for param `image-registry` of type `string`? (Default is `image-registry.openshift-image-registry.svc.cluster.local:5000`) image-registry.openshift-image-registry.svc.cluster.local:5000
+    ? Value for param `image-repository` of type `string`? (Default is `devops-workshop`) devops-workshop
+    ? Value for param `dockerfile` of type `string`? (Default is `./src/main/docker/Dockerfile.jvm`) ./src/main/docker/Dockerfile.jvm
+    PipelineRun started: workshop-pipeline-run-b24tr
 
     In order to track the PipelineRun progress run:
-    tkn pipelinerun logs workshop-pipeline-run-xs8fd -f -n devops-workshop
+    tkn pipelinerun logs workshop-pipeline-run-b24tr -f -n devops-workshop
     ```
 
 1. As mentioned by the output, you can monitor the progress of the pipeline run as follows:
 
     ```bash
-    $ tkn pipelinerun logs workshop-pipeline-run-xs8fd -f -n devops-workshop
+    $ tkn pipelinerun logs workshop-pipeline-run-b24tr -f -n devops-workshop
     ```
 
     Note that your pipeline run name is different from the one shown above. Also, it may take a little bit before logs are being shown here...
@@ -180,7 +245,7 @@ Having successfully created all pipeline resources, we can now run the pipeline.
 
 ## So what got deployed? :smiley:
 
-At this point we deployed our Vert.x java application to Openshift using a pipeline. Let's have a look at the application. For this,
+At this point we deployed our Quarkus application to Openshift using a pipeline. Let's have a look at the application. For this,
 
 1. Switch tab to the OpenShift Web Console, open the 'Developer' view and select 'Topology'. Make sure the 'devops-workshop' project is selected.
 
@@ -196,7 +261,7 @@ A Knative Revision is a specific version of a code deployment.
 
 If you deploy a new version of an app in Kubernetes, you typically change the deployment.yaml file and apply the changed version using `kubectl`. Kubernetes will then perform a rolling update from the old to the new version.
 
-Let's do a new deployment of our hello world Vert.x app. Just to make life easy, we only gonna change the value of the `MSG` environment variable that is used as parameter in the `deploy-using-kn` task. For this,
+Let's do a new deployment of our hello world Quarkus application. Just to make life easy, we only gonna change the value of the `GREETING_MESSAGE` environment variable that is used as parameter in the `deploy-using-kn` task. For this,
 
 1. Switch tab to the IBM Cloud Shell. Make sure `devops-workshop` is your current project. Then edit the pipeline by running:
 
@@ -206,28 +271,28 @@ Let's do a new deployment of our hello world Vert.x app. Just to make life easy,
 
     The pipeline opens in editing mode with vi as editor. 
 
-1. Now, search for the string `env=MSG` by typing `/` followed by:
+1. Now, search for the string `env=GREETING_MESSAGE` by typing `/` followed by:
 
     ```
-    env=MSG
+    env=GREETING_MESSAGE
     ```
 
     Type `n` once to go the next search result. You should now be at the following line:
 
     ```
-    - --env=MSG=Hello DevOps Workshop v1
+    - --env=GREETING_MESSAGE=Hello DevOps Workshop v1
     ```
 
-1. Next, type `<SHIFT> + a` (so captical A). You should now be in editing mode and at the end of the line. Make a change to the value of `MSG`, e.g.
+1. Next, type `<SHIFT> + a` (so captical A). You should now be in editing mode and at the end of the line. Make a change to the value of `GREETING_MESSAGE`, e.g.
 
     ```
-    - --env=MSG=Hello DevOps Workshop v2 UPDATE!!!
+    - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!
     ```
 
 1. A couple of lines above change the `revision-name` to:
 
     ```
-    - --revision-name=knative-jfall-service-v2
+    - --revision-name=quarkus-hello-world-v2
     ```
 
 1. Finally, save your changes by pressing `<Esc>`, followed by type `:wq`. You should see the following output:
@@ -239,7 +304,7 @@ Let's do a new deployment of our hello world Vert.x app. Just to make life easy,
 1. Use the Tekton CLI to run the pipeline again:
 
     ```bash
-    $ tkn pipeline start workshop-pipeline
+    $ tkn pipeline start workshop-pipeline -w name=source,claimName=source-pvc -w name=maven-settings,config=maven-settings
     ```
 
     Accept the defaults again and check the logs or monitor the deployment via the Web Console. Wait for it to successfully complete.
@@ -247,39 +312,39 @@ Let's do a new deployment of our hello world Vert.x app. Just to make life easy,
 1. Next, check the Knative service by typing:
 
     ```bash
-    $ kn service describe knative-jfall-service
+    $ kn service describe quarkus-hello-world
     ```
 
     the output should be similar to:
 
     ```
-    Name:       knative-jfall-service
+    Name:       quarkus-hello-world
     Namespace:  devops-workshop
-    Age:        25m
-    URL:        http://knative-jfall-service-devops-workshop.osjfall-001-0e3e0ef4c9c6d831e8aa6fe01f33bfc4-0000.eu-de.containers.appdomain.cloud
+    Age:        44m
+    URL:        http://quarkus-hello-world-devops-workshop.edcig-oc-devops2-92995e8852008edfcd583364f082948d-0000.ams03.containers.appdomain.cloud
 
     Revisions:  
-      100%  @latest (knative-jfall-service-v2) [2] (49s)
-            Image:  image-registry.openshift-image-registry.svc:5000/devops-workshop/jfall-image:latest (pinned to a07469)
+      100%  @latest (quarkus-hello-world-v2) [2] (28s)
+            Image:  image-registry.openshift-image-registry.svc.cluster.local:5000/devops-workshop/quarkus-hello-world:19e3c62ae20b65ab977a1000a1bdec002e753120 (pinned to 9f4230)
 
     Conditions:  
       OK TYPE                   AGE REASON
-      ++ Ready                  42s 
-      ++ ConfigurationsReady    43s 
-      ++ RoutesReady            42s 
+      ++ Ready                  11s 
+      ++ ConfigurationsReady    11s 
+      ++ RoutesReady            11s 
     ```
 
-    Note that the `[2]` indicates that we currently have two revisions and in this case 100% load on the `knative-jfall-service-v2` revision.
+    Note that the `[2]` indicates that we currently have two revisions and in this case 100% load on the `quarkus-hello-world-v2` revision.
 
 1. Back in the OpenShift Web Console, Topology view:
 
     ![rev2](images/rev2.png)
 
-    It hasn't changed a lot, but notice the two revisions in the 'Resources' where revision `knative-jfall-service-v2` has 100%. Its the same 100% we could see in the previous step using the Knative CLI.
+    It hasn't changed a lot, but notice the two revisions in the 'Resources' where revision `quarkus-hello-world-v2` has 100%. Its the same 100% we could see in the previous step using the Knative CLI.
 
 1. Click on the Route, this will display the output of the latest revision ("Hello: Hello DevOps Workshop v2 UPDATE!!!")
 
-    Back in the Web Console, a pod will be started for Revision `knative-jfall-service-v2`. It will scale to zero after a moment. 
+    Back in the Web Console, a pod will be started for Revision `quarkus-hello-world-v2`. It will scale to zero after a moment. 
 
 ---
 

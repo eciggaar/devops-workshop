@@ -7,7 +7,7 @@ spec:
   description: |
     This pipeline will clone a given repository revision, build a Quarkus application,
     pushing the final image into the Openshift internal registry and finally, deploy 
-    the 
+    the application as a Knative service on the OpenShift cluster
   params:
   - name: source-repo-url
     type: string
@@ -17,10 +17,6 @@ spec:
     type: string
     description: The git revision to clone.
     default: 19e3c62ae20b65ab977a1000a1bdec002e753120
-  - name: short-source-revision
-    type: string
-    description: Short commit id
-    default: 19e3c62
   - name: image-registry
     type: string
     description: Image registry
@@ -98,7 +94,7 @@ spec:
           - create
           - quarkus-hello-world
           - --image=$(params.image-registry)/$(params.image-repository)/quarkus-hello-world:$(params.source-revision)
-          - --revision-name=$(params.short-source-revision)
+          - --revision-name=quarkus-hello-world-v1
           - --env=GREETING_MESSAGE=Hello DevOps Workshop v1
           - --force      
     runAfter:

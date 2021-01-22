@@ -54,7 +54,7 @@ else
   else
     # Pause 10 seconds, then query to see whether knative pane successfully installed. After 10 seconds the conditions representing the installation progress
     # in the output JSON should be present
-    for i in {0..4}
+    for i in {0..9}
     do
       echo "  waiting for completion..."
       sleep 2;
