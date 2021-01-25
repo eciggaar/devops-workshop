@@ -10,11 +10,11 @@ Auto-scaling is accomplished by simply adding a few annotation statements to the
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: knative-jfall-service
+  name: quarkus-hello-world
 spec:
   template:
     metadata:
-      name: knative-jfall-service-v3
+      name: quarkus-hello-world-v3
       annotations:
         # the minimum number of pods to scale down to
         autoscaling.knative.dev/minScale: "1"
@@ -24,13 +24,13 @@ spec:
         autoscaling.knative.dev/target: "1"
     spec:
       containers:
-        - image: image-registry.openshift-image-registry.svc:5000/jfall-workshop/jfall-image:latest
+        - image: image-registry.openshift-image-registry.svc.cluster.local:5000/devops-workshop/quarkus-hello-world:19e3c62ae20b65ab977a1000a1bdec002e753120
           env:
-            - name: TARGET
-              value: "Hello JFall 2020 v3 -- Scaling"
+            - name: GREETING_MESSAGE
+              value: "Hello DevOps Workshop v3 -- Scaling"
   traffic:
     - tag: v3
-      revisionName: knative-jfall-service-v3
+      revisionName: quarkus-hello-world-v3
       percent: 100              
 ```
 
@@ -45,7 +45,8 @@ You can also [scale based on CPU usage or number of requests](https://cloud.ibm.
 1. Download the `hey` load generator tool into your IBM Cloud Shell session and make it executable:
 
    ```bash
-   $ wget https://storage.googleapis.com/hey-release/hey_linux_amd64
+   $ cd ~
+   $ wget https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64
    $ mv hey_linux_amd64 hey
    $ chmod +x hey
    ```

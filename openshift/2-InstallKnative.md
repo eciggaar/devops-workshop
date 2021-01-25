@@ -21,24 +21,47 @@ In this section, the steps for the command line are listed.
    the output should end with something similar to:
 
    ```
+   waiting for completion...
+   waiting for completion...
    {
-   "lastTransitionTime": "2020-10-30T10:57:07Z",
-   "message": "Dependency installing: Kourier",
-   "reason": "Installing",
-   "status": "False",
-   "type": "Ready"
+     "lastTransitionTime": "2021-01-25T09:45:57Z",
+     "message": "Dependency installing: Kourier",
+     "reason": "Installing",
+     "status": "False",
+     "type": "Ready"
    }
-
+   {
+     "lastTransitionTime": "2021-01-25T09:45:54Z",
+     "message": "Waiting on deployments",
+     "reason": "NotReady",
+     "status": "False",
+     "type": "Ready"
+   }
+   
    DependenciesInstalled=True
    DeploymentsAvailable=True
    InstallSucceeded=True
    Ready=True
-
+   VersionMigrationEligible=True
+   
    ==> Done!
-
+      
+   ==> Creating the OpenShift project for this workshop
+   Now using project "devops-workshop" on server "https://c102-e.eu-de.containers.cloud.ibm.com:32384".
+   
+   You can add applications to this project with the 'new-app' command. For example, try:
+   
+       oc new-app rails-postgresql-example
+   
+   to build a new example application in Ruby. Or use kubectl to deploy a simple Kubernetes application:
+   
+       kubectl create deployment hello-node --image=k8s.gcr.io/serve_hostname
+   
+   ==> Done!
+   
    ==> ****************************************************
    ==> 
-   ==> Successfully installed DevOps Workshop pre-reqs
+   ==> Successfully installed DevOps workshop pre-reqs
    ==> 
    ==> ****************************************************
    ```

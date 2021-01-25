@@ -28,7 +28,7 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
     - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!
     ```
 
-1. Switch to editing mode and add the following lines
+1. Switch to editing mode and replace the line `- --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!` with the following lines:
 
     ```
     - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!

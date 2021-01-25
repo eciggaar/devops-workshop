@@ -283,7 +283,7 @@ Let's do a new deployment of our hello world Quarkus application. Just to make l
     - --env=GREETING_MESSAGE=Hello DevOps Workshop v1
     ```
 
-1. Next, type `<SHIFT> + a` (so captical A). You should now be in editing mode and at the end of the line. Make a change to the value of `GREETING_MESSAGE`, e.g.
+1. Next, type `<SHIFT> + a`. You should now be in editing mode and at the end of the line. Make a change to the value of `GREETING_MESSAGE`, e.g.
 
     ```
     - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!
