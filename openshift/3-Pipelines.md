@@ -1,4 +1,4 @@
-# Create an OpenShift pipeline and deploy your Quarkus app with it
+# Create an OpenShift pipeline and deploy your Quarkus application with it
 
 ## Creating the pipeline
 
@@ -235,13 +235,13 @@ Having successfully created all pipeline resources, we can now run the pipeline.
 
 1. For this, open the Web Console. In the Pipelines -> Pipeline Runs section you find your running pipeline. Typically, you would see something like:
 
-    ![pipeline run 1](images/pipeline-run1.png) 
+    ![pipeline run details](images/pipeline-run-details.png) 
 
-    Click on one of the tasks to get to the details of the Task Run. Below the result is shown when clicking the `compile-and-build` task.
+    Click on one of the tasks to get to the logs of your running pipeline. Below the result is shown when clicking the `fetch-source-repository` task.
 
-    ![task run 1](images/task-run1.png) 
+    ![pipeline run logs](images/pipeline-run-details.png) 
 
-    As you might have noticed, by the time this screenshot was taken, the Pipeline Run successfully completed. 
+    As you might have noticed, by the time this screenshot was taken, the Pipeline Run already successfully completed. 
 
 ## So what got deployed? :smiley:
 
@@ -249,11 +249,11 @@ At this point we deployed our Quarkus application to Openshift using a pipeline.
 
 1. Switch tab to the OpenShift Web Console, open the 'Developer' view and select 'Topology'. Make sure the 'devops-workshop' project is selected.
 
-    ![vertx knative service](images/vertx-kn-service.png) 
+    ![quarkus hello world knative service](images/quarkus-hello-world-kn.png) 
 
-    Now click the KSVC tag to view the details (pods, revisions, routes, etc.) of the Knative service. Click the route to open the application. The result should be similar to 
+    Now click the KSVC tag to view the details (pods, revisions, routes, etc.) of the Knative service. Click the route to open the application. The result should be similar to: 
 
-    ![vertx app](images/vertx-app.png) 
+    ![quarkus hello world application](images/quarkus-app.png) 
 
 ### Knative Revisions
 

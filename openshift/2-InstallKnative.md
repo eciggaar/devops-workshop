@@ -88,4 +88,4 @@ This script creates a subscription to both the serverless and the pipelines oper
 
 ---
 
-__Continue with the next part [Create an OpenShift Pipeline and deploy your Quarkus app with it](3-Pipelines.md)__    
+__Continue with the next part [Create an OpenShift Pipeline and deploy your Quarkus application with it](3-Pipelines.md)__    

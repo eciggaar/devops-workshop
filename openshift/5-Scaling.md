@@ -40,9 +40,14 @@ spec:
 
 You can also [scale based on CPU usage or number of requests](https://cloud.ibm.com/docs/containers?topic=containers-serverless-apps-knative#scale-cpu-vs-number-requests).
 
-1. Deploy as usual (`oc apply ...`) and test if it works (`curl ...`).
+1. Deploy the update to the Knative service as usual. That is, 
 
-1. Download the `hey` load generator tool into your IBM Cloud Shell session and make it executable:
+  ```bash
+  $ cd ~/devops-workshop/scripts
+  $ oc apply -f knative/service-v3-scaling.yaml
+  ```
+
+1. Netx, download the `hey` load generator tool into your IBM Cloud Shell session and make it executable:
 
    ```bash
    $ cd ~
@@ -61,6 +66,8 @@ You can also [scale based on CPU usage or number of requests](https://cloud.ibm.
    ```bash
    $ ./hey -z 30s -c 50 http://hellojfall-....appdomain.cloud   
    ```
+
+   The 
 
 1. Switch over to OpenShift Web Console and watch the pod count go up to 5:
 
