@@ -1,4 +1,4 @@
-# Create an OpenShift pipeline and deploy your Quarkus application with it
+# Create an OpenShift Pipeline and deploy your Quarkus application with it
 
 ## Creating the pipeline
 
