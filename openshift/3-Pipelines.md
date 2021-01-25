@@ -4,11 +4,10 @@
 
 A pipeline consists of multiple so-called tasks that are executed in sequence and/or parallel. Tasks in their turn can contain one ore more steps. To get our code deployed to OpenShift, a couple of steps need to be executed. First, we need to run a Maven build of our Java code. Next, a Docker image needs to be created containing the runnable JAR. Finally, this Docker image needs to be deployed to the OpenShift cluster as a Knative service. 
 
-The first two steps are put together into one Pipeline Task called `compile-and-build`. The deployment of the Knative service is performed by a seperate task called `deploy-using-kn`. This task consists of just one step. 
+The retrieval of the source code is done in the first task called `fetch-source-repository`. Next, the Java code is compiled and tested using Maven. This is done in the `maven-build-and-test` task. Then, the using the Dockerfile that has been generated when creating our Quarkus Hello World project, the JAR file from the previous task is built into a Docker image and pushed to the local image registry. Finally, in the `deploy-using-kn` task, this Docker image is used to deploy a Knative service on OpenShift.
+The tasks use so-called workspaces to store and share the fetched source code and the Maven settings.
 
-Both tasks use so-called Pipeline Resources that serve as input and output for the task. The `compile-and-build` task needs a Git repo as input. It produces a Docker image as output. The second and final task will use this Docker image as input again. Besides these Pipeline resource both tasks use parameters as well to control how the tasks are run. 
-
-All these resources are grouped together in what is called an OpenShift pipeline. Take a look at the YAML below. 
+All these resources are grouped together in what is called an OpenShift Pipeline. Take a look at the YAML below. 
 
 ```yaml
 apiVersion: tekton.dev/v1beta1
@@ -139,42 +138,42 @@ This YAML describes the pipeline that is used in this workshop. Note how it is b
 
   This script creates the custom tasks, workspaces and the pipeline itself -- all in the `devops-workshop` project. The output should be similar to:
 
-```
-==> **************************************************
-==> 
-==> Create DevOps workshop pipeline
-==> 
-==> **************************************************
+  ```
+  ==> **************************************************
+  ==> 
+  ==> Create DevOps workshop pipeline
+  ==> 
+  ==> **************************************************
 
-==> Switching to project for this workshop
-Already on project "devops-workshop" on server "<your-server>".
-==> Done!
+  ==> Switching to project for this workshop
+  Already on project "devops-workshop" on server "<your-server>".
+  ==> Done!
 
-==> Creating a persistant volume claim and fetch git repo and a Maven config map for the settings.xml
-persistentvolumeclaim/source-pvc created
-configmap/maven-settings created
-==> Done!
+  ==> Creating a persistant volume claim and fetch git repo and a Maven config map for the settings.xml
+  persistentvolumeclaim/source-pvc created
+  configmap/maven-settings created
+  ==> Done!
 
-==> Adding a custom Tekton task to clean up the workspace as last step of the pipeline
-task.tekton.dev/workspace-cleaner created
-==> Done!
+  ==> Adding a custom Tekton task to clean up the workspace as last step of the pipeline
+  task.tekton.dev/workspace-cleaner created
+  ==> Done!
 
-==> Creating workshop OpenShift Pipeline
-pipeline.tekton.dev/workshop-pipeline created
-==> Done!
+  ==> Creating workshop OpenShift Pipeline
+  pipeline.tekton.dev/workshop-pipeline created
+  ==> Done!
 
-==> ****************************************************
-==> 
-==> Successfully created DevOps workshop pipeline
-==> 
-==> ****************************************************
-```
+  ==> ****************************************************
+  ==> 
+  ==> Successfully created DevOps workshop pipeline
+  ==> 
+  ==> ****************************************************
+  ```
 
-To verify that everything is in place, check the Pipelines section in the OpenShift Web Console. It should list the workshop pipeline and custom task created by the script.
+  To verify that everything is in place, check the Pipelines section in the OpenShift Web Console. It should list the workshop pipeline and custom task created by the script.
 
-![pipelines](images/pipelines.png) 
+  ![pipelines](images/pipelines.png) 
 
-You can also check the presence of your tasks using the command line. For this,
+  You can also check the presence of your tasks using the command line. For this,
 
 2. In your IBM Cloud shell use the Tekton CLI to get a list of your custom tasks:
   
@@ -254,6 +253,8 @@ At this point we deployed our Quarkus application to Openshift using a pipeline.
     Now click the KSVC tag to view the details (pods, revisions, routes, etc.) of the Knative service. Click the route to open the application. The result should be similar to: 
 
     ![quarkus hello world application](images/quarkus-app.png) 
+
+    You can click the `hello` endpoint to see the result of the GET request. This should be similar to `Hello DevOps Workshop v1`.
 
 ### Knative Revisions
 
