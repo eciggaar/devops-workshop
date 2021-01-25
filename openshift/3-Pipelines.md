@@ -257,13 +257,13 @@ At this point we deployed our Quarkus application to Openshift using a pipeline.
 
 ### Knative Revisions
 
-A Knative Revision is a specific version of a code deployment. 
+A Knative Revision is a specific version of a code deployment of a Knative service.
 
-If you deploy a new version of an app in Kubernetes, you typically change the deployment.yaml file and apply the changed version using `kubectl`. Kubernetes will then perform a rolling update from the old to the new version.
+If you deploy a new version of an application in Kubernetes, you typically change its service definition. It's good practice to then commit and push this changed deployment definition into a dedicated configuration Git repository. Finally, the push to the repo should trigger a rolling update of the application from the old to the new version.
 
-Let's do a new deployment of our hello world Quarkus application. Just to make life easy, we only gonna change the value of the `GREETING_MESSAGE` environment variable that is used as parameter in the `deploy-using-kn` task. For this,
+For the sake of simplificity in this workshop, we will make a change to the `GREETING_MESSAGE` environment variable and manually trigger the pipeline. This causes a new revision of our application to be deployed using the pipeline.
 
-1. Switch tab to the IBM Cloud Shell. Make sure `devops-workshop` is your current project. Then edit the pipeline by running:
+1. For this, switch tab to the IBM Cloud Shell and make sure `devops-workshop` is your current project. Then, edit the pipeline by running:
 
     ```bash
     $ oc edit pipeline workshop-pipeline
@@ -277,13 +277,13 @@ Let's do a new deployment of our hello world Quarkus application. Just to make l
     env=GREETING_MESSAGE
     ```
 
-    Type `n` once to go the next search result. You should now be at the following line:
+    Hit \<ENTER\> and type `n` once to go the next search result. You should now be at the following line:
 
     ```
     - --env=GREETING_MESSAGE=Hello DevOps Workshop v1
     ```
 
-1. Next, type `<SHIFT> + a`. You should now be in editing mode and at the end of the line. Make a change to the value of `GREETING_MESSAGE`, e.g.
+1. Next, type `<SHIFT> + a`. You should now be in editing mode and at the end of the line. Change to the value of `GREETING_MESSAGE` to something like:
 
     ```
     - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!
@@ -340,9 +340,9 @@ Let's do a new deployment of our hello world Quarkus application. Just to make l
 
     ![rev2](images/rev2.png)
 
-    It hasn't changed a lot, but notice the two revisions in the 'Resources' where revision `quarkus-hello-world-v2` has 100%. Its the same 100% we could see in the previous step using the Knative CLI.
+    It hasn't changed a lot, but notice the two revisions in the 'Resources' section where revision `quarkus-hello-world-v2` has 100%. Its the same 100% we could see in the previous step using the Knative CLI.
 
-1. Click on the Route, this will display the output of the latest revision ("Hello: Hello DevOps Workshop v2 UPDATE!!!")
+1. Click on the Route. This should display the output of the latest revision ("Hello DevOps Workshop v2 UPDATE!!!").
 
     Back in the Web Console, a pod will be started for Revision `quarkus-hello-world-v2`. It will scale to zero after a moment. 
 

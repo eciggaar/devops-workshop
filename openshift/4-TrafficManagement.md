@@ -6,9 +6,9 @@ What if you want to do a canary release and test the new revision/version on a s
 
 This is something you can easily do with Istio. It requires additional VirtualService and DestinationRule definitions.
 
-Using pipelines and Knative it is also rather simple to accomplish this. A good approach would be to create a dedicated Pipeline Run for this. However in this lab wel will edit the pipeline directly and implicitly create a new pipeline run when starting the pipeline.
+Using pipelines and Knative it is also rather simple to accomplish this. Again, a good approach would be to trigger this by adding / changing the configuration in a dedicated Git repository -- as mentioned in the previous section of this workshop. However, in this lab wel will edit the pipeline directly and implicitly create a new pipeline run when starting the pipeline.
 
-1. For this, switch tab to the IBM Cloud Shell and ensure that the `devops-workshop` project is your current project. Then edit the pipeline by running:
+1. For this, switch tab to the IBM Cloud Shell and ensure that the `devops-workshop` project is your current project. Then, edit the pipeline by running:
     
     ```bash
     $ oc edit pipeline workshop-pipeline
@@ -22,7 +22,7 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
     env=GREETING_MESSAGE
     ```
 
-    Type `n` once to go the next search result. You should now be at the following line:
+    Hit \<ENTER\> and type `n` once to go the next search result. You should now be at the following line:
 
     ```
     - --env=GREETING_MESSAGE=Hello DevOps Workshop v2 UPDATE!!!
@@ -38,7 +38,7 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
     - --traffic=v2=25
     ```
 
-    Furthermore, change `create` into `update` and remove the `--force` flag, so that the `ARGS` paramter Knative client invocation looks like:
+    Furthermore, change `create` into `update` and remove the `--force` flag, so that the `ARGS` parameter of the Knative client invocation looks like:
 
     ```
     - name: ARGS
@@ -63,7 +63,7 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
     pipeline.tekton.dev/workshop-pipeline edited
     ```
 
-1. Use the Tekton CLI to run the pipeline again:
+1. In the Cloud shell, use the Tekton CLI to run the pipeline again:
 
     ```bash
     $ tkn pipeline start workshop-pipeline -w name=source,claimName=source-pvc -w name=maven-settings,config=maven-settings
@@ -75,7 +75,7 @@ Using pipelines and Knative it is also rather simple to accomplish this. A good 
    
     ![canary](images/canary.png)
 
-    With "Set Traffic Distribution" you can actually change the distribution without modifying and redeploying the YAML file.
+    Note that with "Set Traffic Distribution" you can actually change the distribution without modifying and redeploying the YAML file.
 
 1. Open the Route in your Browser and click refresh multiple times. You will see output of both revisions, `v1` will show up more often than `v2` though (75 % vs. 25 %).
 

@@ -90,17 +90,6 @@ You can also [scale based on CPU usage or number of requests](https://cloud.ibm.
     0.270 [33]    |
    ```
   
-   None of the requests took much longer than a quarter of a second. Thats because one pod is always started and can take the initial brunt of the requests.
+   None of the requests took much longer than a quarter of a second. That's because one pod is always started and can take the first so many requests.
   
-**This concludes the main part of the Knative workshop.**   
-
-The IBM Cloud documentation of Knative has a collection of [useful Knative Serving settings](https://cloud.ibm.com/docs/containers?topic=containers-serverless-apps-knative#knative-service-settings), including:
-
-* Scaling based on CPU or number of requests
-* Changing default container port
-* Creating private (cluster internal) only services
-etc.
-  
----
-
-__Continue with the last part [Create a reactive Java application using Quarkus](9-ReactiveQuarkus.md)__
+**This concludes the part 1 of the DevOps workshop.**   
