@@ -8,3 +8,4 @@
 **/target
 **.DS_Store
 
+scripts/deletable-namespace.yaml
