@@ -1,4 +1,4 @@
-# How to build a modern CI/CD workflow with Tekton on OpenShift
+# How to build a modern CI/CD workflow with Tekton on OpenShift, Part 1
 
 ## Learning objectives
 
@@ -22,7 +22,7 @@ Click the link below to get started & have fun!! Happy coding :smiley:
 
 ---
 
-**[OpenShift Serverless on Red Hat OpenShift on IBM Cloud](openshift/1-Prereqs.md)**
+**[Let's get started building pipelines!!](openshift/1-Prereqs.md)**
 
 To complete this workshop, a basic understanding of Kubernetes/OpenShift, Tekton pipelines and application deployment on OpenShift is instrumental!
 
