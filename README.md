@@ -22,11 +22,11 @@ Click the link below to get started & have fun!! Happy coding :smiley:
 
 ---
 
-**[Let's get started building pipelines!!](openshift/1-Prereqs.md)**
-
-To complete this workshop, a basic understanding of Kubernetes/OpenShift, Tekton pipelines and application deployment on OpenShift is instrumental!
+**[Let's get started with the hands-on part!!](openshift/1-Prereqs.md)**
 
 ---
+
+To complete this workshop, a basic understanding of Kubernetes/OpenShift, Tekton pipelines and application deployment on OpenShift is instrumental!
 
 ## Tools:
 
