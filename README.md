@@ -2,7 +2,7 @@
 
 ## Learning objectives
 
-This workshop is all about creating and deploying a Quarkus application as a Knative service on OpenShift using a modern CI/CD workflow. It is inspired on two great existing blogs on this topic, written by David Sancho (see Resources section for the links). In this first part of the workshop, we will focus on setting up a Tekton pipeline and how to use it to deploy a simple Quarkus application.
+This workshop is all about creating and deploying a Quarkus application as a Knative service on OpenShift using a modern CI/CD workflow. It is inspired on two great existing blogs on this topic, written by David Sancho (see [Resources](#resources) section for the links). In this first part of the workshop, we will focus on setting up a Tekton pipeline and how to use it to deploy a simple Quarkus application.
 
 It more detail, this part of the workshop covers:
 
