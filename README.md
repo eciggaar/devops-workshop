@@ -1,48 +1,22 @@
-# Deploying a Modern Reactive Serverless Microservice to the Cloud
+# How to build a modern CI/CD workflow with Tekton on OpenShift
 
 ## Learning objectives
 
-This workshop is all about creating and deploying a reactive Java app as a Knative service on OpenShift. After this workshop you learned how to:
+This workshop is all about creating and deploying a Quarkus application as a Knative service on OpenShift using a modern CI/CD workflow. It is inspired on two great existing blogs on this topic, written by David Sancho (see Resources section for the links). In this first part of the workshop, we will focus on setting up a Tekton pipeline and deploying a simple Quarkus application with it.
 
-* Create a Reactive Java application using Vert.x
-* Deploy this application as Knative service
-* How to create and use OpenShift pipelines to deploy your app
-* How to leverage Quarkus to create reactive Java applications
-
-Let's start with exploring Knative a bit more...
-
-## Why is deploying a Knative service easier than a Kubernetess deployment? 
-
-![Knative Logo](openshift/images/knative-logo.png)
-
-Knative is a framework running on top of Kubernetes that makes it easier to perform common tasks such as scaling up and down, routing traffic, canary deployments, etc. According to the Knative web site it is "abstracting away the complex details and enabling developers to focus on what matters. It solves the 'boring but difficult' parts of deploying and managing cloud native services so you don't have to."
-
-## What is Knative? 
-
-It is an additional layer installed on top of Kubernetes. 
-
-It has two distinct components, originally it were three. The third was called Knative Build, it is now a project of its own: [Tekton](https://tekton.dev/). 
-
-* __Knative Serving__ is responsible for deploying and running containers, also networking and auto-scaling. Auto-scaling allows scale to zero and is probably the main reason why Knative is referred to as Serverless platform.
-* __Knative Eventing__ allows to connect Knative services (deployed by Knative Serving) or other Kubernetes deployments with events or streams of events.
-
-This workshop will **focus on Knative Serving** and will cover the following topics:
+It more detail, this part of the workshop covers:
 
 1. Prerequisites (access to an OpenShift cluster, work environment, etc.)
 
 1. Installing the required OpenShift Operators
 
-1. Create, change and deploy a Vert.x example app as Knative service
+1. Create an OpenShift Pipeline and deploy your Quarkus application with it
 
-1. Create an OpenShift pipeline and deploy your Vert.x app with it
+1. Make a change to the application and get this deployed using the pipeline
 
-1. Creating a Knative Revision
+1. Leverage Traffic Management to test your new changes
 
-1. Traffic Management
-
-1. Auto-Scaling
-
-1. Create a reactive Java application using Quarkus
+1. Auto-Scaling (optional)
 
 Click the link below to get started & have fun!! Happy coding :smiley:
 
@@ -50,7 +24,7 @@ Click the link below to get started & have fun!! Happy coding :smiley:
 
 **[OpenShift Serverless on Red Hat OpenShift on IBM Cloud](openshift/1-Prereqs.md)**
 
-To complete this workshop, basic understanding of Kubernetes/OpenShift and application deployment on Kubernetes is instrumental!
+To complete this workshop, a basic understanding of Kubernetes/OpenShift, Tekton pipelines and application deployment on OpenShift is instrumental!
 
 ---
 
@@ -73,18 +47,13 @@ hey|HTTP Load generator: https://github.com/rakyll/hey
 
 You can find detailed information and learn more about Knative here:
 
+1. [Building modern CI/CD workflows for serverless applications with Red Hat OpenShift Pipelines and Argo CD, Part 1](https://developers.redhat.com/blog/2020/10/01/building-modern-ci-cd-workflows-for-serverless-applications-with-red-hat-openshift-pipelines-and-argo-cd-part-1/)
+
+1. [Building modern CI/CD workflows for serverless applications with Red Hat OpenShift Pipelines and Argo CD, Part 2](https://developers.redhat.com/blog/2020/10/14/building-modern-ci-cd-workflows-for-serverless-applications-with-red-hat-openshift-pipelines-and-argo-cd-part-2/)
+
 1. [Knative documentation](https://knative.dev/docs)
 
 1. [Quarkus Getting Started](https://quarkus.io/get-started/)
 
 1. [Red Hat Knative Tutorial](https://redhat-developer-demos.github.io/knative-tutorial/knative-tutorial/index.html)
-
-1. [Deploying serverless apps with Knative (IBM Cloud Documentation)](https://cloud.ibm.com/docs/containers?topic=containers-serverless-apps-knative)
-
-1.  A series of blogs on Knative:
-      - [Serverless and Knative – Part 1: Installing Knative on CodeReady Containers](https://haralduebele.blog/2020/06/02/serverless-and-knative-part-1-installing-knative-on-codeready-containers/)
-      - [Serverless and Knative – Part 2: Knative Serving](https://haralduebele.blog/2020/06/03/serverless-and-knative-part-2-knative-serving/)
-      - [Serverless and Knative – Part 3: Knative Eventing](https://haralduebele.blog/2020/06/10/serverless-and-knative-part-3-knative-eventing/)
-      - [Knative Example: Deploying a Microservices Application](https://haralduebele.blog/2020/07/02/knative-example-deploying-a-microservices-application/) -- The YAML files for this example are in the `code/cloud-native-starter` directory
-
 
