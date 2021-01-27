@@ -28,7 +28,7 @@ Click the link below to get started & have fun!! Happy coding :smiley:
 
 To complete this workshop, a basic understanding of Kubernetes/OpenShift, Tekton pipelines and application deployment on OpenShift is instrumental!
 
-## Tools:
+## Tools
 
 In this workshop we will be using the IBM Cloud Shell which has all required tools installed.
 
@@ -43,7 +43,7 @@ oc|Download from OpenShift Web Console, click on question mark
 kn|https://knative.dev/docs/install/install-kn/
 hey|HTTP Load generator: https://github.com/rakyll/hey
 
-## Resources:
+## Resources
 
 You can find detailed information and learn more about Knative here:
 
