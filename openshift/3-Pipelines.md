@@ -190,7 +190,7 @@ This YAML describes the pipeline that is used in this workshop. Note how it is b
     ```bash
     $ oc get pvc
     ```
-    and to check the ConfigMap, enter:
+    Make sure the status is set to `Bound` and not `Pending`. This might take a minute or so. You can rerun the above command to retrieve the latest status. To verify the ConfigMap is created, enter:
 
     ```bash
     $ oc get cm
